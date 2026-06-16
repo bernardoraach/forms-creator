@@ -1,0 +1,13 @@
+POST http://127.0.0.1:5000/gerar-documento
+Content-Type: application/json
+
+{
+  "opcao_formulario": "3",
+  "pessoa": {
+    "nome": "Bernardo Raach",
+    "cpf": "01715829000",
+    "filho": "",
+    "endereco": "Rua Marechal Deodoro, 231",
+    "renda": "3500"
+  }
+}

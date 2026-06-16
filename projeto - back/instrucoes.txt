@@ -1,0 +1,11 @@
+-inicializar git na pasta:
+git init
+
+-adicionar o arquivo criado para a "fila" de envio:
+git add app.py
+
+-primeiro ponto de salvamento
+git commit -m "projeto inicial"
+
+
+

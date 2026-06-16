@@ -1,0 +1,15 @@
+# Python temporários
+__pycache__/
+*.pyc
+
+# Ambientes virtuais
+env/
+venv/
+.venv/
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de resposta locais que geramos nos testes
+documento_*.txt
