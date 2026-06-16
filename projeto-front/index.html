@@ -112,8 +112,16 @@
                 const dadosRetorno = await resposta.json();
 
                 if (resposta.ok) {
-                    divResultado.innerHTML = `<strong>Sucesso!</strong><br>Arquivo salvo como: <u>${dadosRetorno.arquivo_salvo}</u><br><br><strong>Conteúdo gerado:</strong><br>${dadosRetorno.documento}`;
-                    divResultado.className = 'sucesso';
+                    document.body.innerHTML = `<div class="btn-acoes">
+                        <button onClick="window.print()"> Salvar em PDF / Imprimir</button>
+                        <button class="btn-secundario" onclick="window.location.reload()"> Gerar novo documento</button>
+                        </div>
+                        <div class="documento-wrapper">
+                            <div class="documento-texto">${dadosRetorno.documento}</div>
+                            </div>`;
+                    // código abaixo muda o fundo do navegador para destacar a folha branca       
+                    document.body.style.backgroundColor="#e5e7eb";
+                    document.body.style.alignItems = "flex-start";
                 }
                 else {
                     divResultado.innerHTML = `<strong>Erro no servidor:</strong>${dadosRetorno.mensagem}`;
