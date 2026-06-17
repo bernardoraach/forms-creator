@@ -65,12 +65,16 @@ def api_gerar_documento():
     dados_pessoa = requisicao.get('pessoa')
     selecionar = requisicao.get('opcao_formulario')
 
+    
     doc_final = gerar_doc(dados_pessoa, selecionar)
 
     if "Erro:" not in doc_final:
         nome_arquivo = f"documento_{dados_pessoa['nome'].lower().replace(' ', '-')}.txt"
-        salvar(nome_arquivo, doc_final)
+        
+        # COMANDO SALVAR REMOVIDO PARA A NUVEM NÃO CRASHAR O PROCESSO
+        # salvar(nome_arquivo, doc_final) 
 
+        # retorna o sucesso e o texto direto para o front-end injetar na tela
         return jsonify({
             "status": "sucesso",
             "documento": doc_final,
@@ -81,7 +85,3 @@ def api_gerar_documento():
             "status": "erro",
             "mensagem": doc_final
         }), 400
-
-if __name__ == '__main__':
-    porta = int (os.environ.get("PORT", 5001))
-    app.run(host="0.0.0.0", port=porta, debug=False)  # pyright: ignore[reportUndefinedVariable]
