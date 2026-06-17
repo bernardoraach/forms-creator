@@ -164,3 +164,25 @@ button:hover {
         width: 100%;
     }
 }
+
+.btn-print-container {
+    max-width: 800px;
+    margin: 10px auto;
+    text-align: right;
+}
+
+.btn-print {
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s;
+}
+
+.btn-print:hover{
+    background-color: #4338ca;
+}

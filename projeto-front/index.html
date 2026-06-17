@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Formulários</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 
 <body>
     <div class="container" id="areaFormulario">
-        <h2>TESTE DE CONEXÃO: Gerador de Documento</h2>
+        <h2>Gerador de Documento</h2>
 
         <div id="corpoFormulario">
             <div class="form-group">
@@ -35,6 +35,11 @@
             </div>
 
             <div class="form-group">
+                <label for="cidade">Cidade - Estado</label>
+                <input type="text" id="cidade" required placeholder="Ex: Curitiba - PR">
+            </div> 
+
+            <div class="form-group">
                 <label for="opcao_formulario">Tipo de Documento</label>
                 <select id="opcao_formulario" onchange="checkFormulario()">
                     <option value="1">Declaracão de Responsáveis (Viagem)</option>
@@ -47,7 +52,7 @@
 
             <div class="form-group hidden" id="grupoTextoLivre">
                 <label for="texto_livre">O que deve constar no documento livre?</label>
-                <textarea id="texto_livre" rows="4" placeholder="Digite aqui os termos adicionais..."></textarea>
+                <textarea id="texto_livre" rows="4" placeholder="Esse recurso ainda está em construção..."></textarea>
             </div>
 
             <button type="button" id="btnEnviarForm">Gerar e Salvar Arquivo</button>
@@ -84,11 +89,12 @@
                     endereco: document.getElementById('endereco').value,
                     filho: document.getElementById('filho').value,
                     renda: document.getElementById('renda').value,
+                    cidade: document.getElementById('cidade').value,
                 }
             };
 
             try {
-                const resposta = await fetch('http://127.0.0.1:5000/gerar-documento', {
+                const resposta = await fetch('http://127.0.0.1:5001/gerar-documento', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -99,18 +105,20 @@
                 const dadosRetorno = await resposta.json();
 
                 if (resposta.ok) {
-                    // 1. Abre a nova aba de forma limpa
                     const novaAba = window.open('', '_blank');
-                    
+
                     if (!novaAba) {
-                        alert("O Safari bloqueou a abertura da nova aba. Por favor, permita pop-ups para este site local.");
+                        alert("O navegador bloqueou a nova aba! Ative os pop-ups nas configurações.");
                         return;
                     }
 
-                    // 2. Define o título da nova aba
                     novaAba.document.title = "Documento Gerado";
 
-                    // 3. Injeta a estrutura HTML e os estilos de forma segura (sem usar a tag script interna que quebrava tudo)
+                    const linkCSS = novaAba.document.createElement('link');
+                    linkCSS.rel = 'stylesheet';
+                    linkCSS.href = 'style.css?v=7'; 
+                    novaAba.document.head.appendChild(linkCSS);
+
                     novaAba.document.body.innerHTML = `
                         <div class="btn-print-container">
                             <button class="btn-print" id="btnImprimirJanela">Salvar em PDF / Imprimir</button>
@@ -120,32 +128,18 @@
                         </div>
                     `;
 
-                    // 4. Injeta os estilos dinamicamente para o Safari respeitar a folha A4
-                    const estilo = novaAba.document.createElement('style');
-                    estilo.textContent = `
-                        body { background-color: #e5e7eb; padding: 20px; margin: 0; font-family: sans-serif; }
-                        .btn-print-container { max-width: 800px; margin: 10px auto; text-align: right; }
-                        .btn-print { background-color: #4f46e5; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; transition: background 0.2s; }
-                        .btn-print:hover { background-color: #4338ca; }
-                        .documento-wrapper { background-color: #ffffff; padding: 50px 60px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); width: 100%; max-width: 800px; margin: 20px auto; min-height: 297mm; box-sizing: border-box; }
-                        .documento-texto { font-family: "Times New Roman", Times, serif; font-size: 18px; line-height: 1.6; color: #000000; white-space: pre-wrap; text-align: justify; }
-                        @media print {
-                            body { background-color: white; padding: 0; }
-                            .btn-print-container { display: none !important; }
-                            .documento-wrapper { box-shadow: none; margin: 0; padding: 0; }
-                        }
-                    `;
-                    novaAba.document.head.appendChild(estilo);
+                    novaAba.document.body.style.backgroundColor = "#e5e7eb";
+                    novaAba.document.body.style.padding = "20px";
+                    novaAba.document.body.style.margin = "0";
+                    novaAba.document.body.style.fontFamily = "-apple-system, BlinkMacSystemFont, sans-serif";
 
-                    // Adiciona a ação do clique do botão de imprimir na nova página
                     novaAba.document.getElementById('btnImprimirJanela').addEventListener('click', () => {
                         novaAba.print();
                     });
 
-                    // Abre a janela de impressão automaticamente
                     setTimeout(() => {
                         novaAba.print();
-                    }, 300);
+                    }, 500);
                 }
                 else {
                     divResultado.innerHTML = `<strong>Erro no servidor:</strong> ${dadosRetorno.mensagem}`;
