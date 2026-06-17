@@ -49,7 +49,7 @@ def gerar_doc(dados, tipo):
     return documento_oficial
 
 def salvar(arquivo, conteudo):
-    pasta_segura = os.path.expanduser("~/Desktop/documentos_gerados")
+    pasta_segura = os.path.join(os.getcwd(), "documentos_gerados")
     if not os.path.exists(pasta_segura):
         os.makedirs(pasta_segura)
         
@@ -83,4 +83,5 @@ def api_gerar_documento():
         }), 400
 
 if __name__ == '__main__':
-    app.run(debug=False, port=5001)
+    port = int (os.environ.get("PORT", 5001))
+    app.run(host="0.0.0.0", port=porta, debug=False)  # pyright: ignore[reportUndefinedVariable]
