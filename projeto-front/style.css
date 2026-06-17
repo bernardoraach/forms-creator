@@ -13,13 +13,10 @@ body {
     color: var(--text);
     margin: 0;
     padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-
 }
 
+/* MODIFICADO: A centralização do formulário agora acontece de forma segura aqui */
 .container {
     background-color: var(--card-bg);
     padding: 30px;
@@ -27,6 +24,8 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     width: 100%;
     max-width: 600px;
+    margin: 40px auto;
+    /* Centraliza o card na tela de forma estável */
 }
 
 h2 {
@@ -108,8 +107,8 @@ button:hover {
 }
 
 /* css para transformar em A4 PDF */
-.document-wrapper {
-    background-color: var(--card-bg);
+.documento-wrapper {
+    background-color: #ffffff !important;
     padding: 50px 60px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
@@ -117,8 +116,8 @@ button:hover {
     max-width: 800px;
     margin: 20px auto;
     min-height: 297mm;
-    /* proporção padrão para uma folha A4*/
     box-sizing: border-box;
+    display: block !important; /* Força o Safari a renderizar como bloco limpo */
 }
 
 .documento-texto {
@@ -151,15 +150,17 @@ button:hover {
     body {
         background-color: #ffffff;
         padding: 0;
+        display: block !important;
     }
 
     .btn-acoes {
         display: none !important;
     }
 
-    .document-wrapper {
+    .documento-wrapper {
         box-shadow: none;
         padding: 0;
         margin: 0;
+        width: 100%;
     }
 }

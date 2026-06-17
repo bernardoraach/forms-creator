@@ -1,44 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Formulários</title>
-    <link rel="stylesheet" href="style.css">
-    <style></style>
-
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 
 <body>
-    <div class="container">
-        <h2>Gerador de Documento</h2>
+    <div class="container" id="areaFormulario">
+        <h2>TESTE DE CONEXÃO: Gerador de Documento</h2>
 
-        <form id="formGerador">
+        <div id="corpoFormulario">
             <div class="form-group">
                 <label for="nome">Nome Completo</label>
                 <input type="text" id="nome" required placeholder="Ex: Michael Jackson">
-
             </div>
-            <div classe="form-group">
+            <div class="form-group">
                 <label for="cpf">CPF</label>
                 <input type="text" id="cpf" required placeholder="Ex: 123.456.789-10">
-
             </div>
-            <div classe="form-group">
+            <div class="form-group">
                 <label for="endereco">Endereço Residencial</label>
                 <input type="text" id="endereco" required placeholder="Ex: Rua, número...">
-
             </div>
-            <div classe="form-group">
+            <div class="form-group">
                 <label for="filho">Nome do Filho</label>
                 <input type="text" id="filho" required placeholder="Deixe em branco se não tiver">
-
             </div>
-            <div classe="form-group">
+            <div class="form-group">
                 <label for="renda">Renda Mensal R$</label>
                 <input type="text" id="renda" required placeholder="Ex: 3500">
-
             </div>
 
             <div class="form-group">
@@ -50,25 +43,20 @@
                     <option value="4">Declaração de Doador de Medula Óssea</option>
                     <option value="livre">Criar Documento / Livre Personalizado</option>
                 </select>
-
             </div>
 
             <div class="form-group hidden" id="grupoTextoLivre">
                 <label for="texto_livre">O que deve constar no documento livre?</label>
-                <textarea id="texto_livre" rows="4"
-                    placeholder="Digite aqui os termos adicionais ou o escopo do seu documento personalizado..."></textarea>
+                <textarea id="texto_livre" rows="4" placeholder="Digite aqui os termos adicionais..."></textarea>
             </div>
 
-            <button type="submit">Gerar e Salvar Arquivo</button>
-
-        </form>
+            <button type="button" id="btnEnviarForm">Gerar e Salvar Arquivo</button>
+        </div>
 
         <div id="resultado" class="hidden"></div>
-
     </div>
 
     <script>
-        //Funcao para esconder o campo caso seja informado outro tipo de documento
         function checkFormulario() {
             const select = document.getElementById('opcao_formulario');
             const grupoTextoLivre = document.getElementById('grupoTextoLivre');
@@ -80,9 +68,9 @@
             }
         };
 
-        //Conexão com envio do formulário e conecta com Back-end Flask
-        document.getElementById('formGerador').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('btnEnviarForm').addEventListener('click', async (evento) => {
+            evento.preventDefault();
+            evento.stopPropagation();
 
             const divResultado = document.getElementById('resultado');
             divResultado.className = 'hidden';
@@ -99,7 +87,6 @@
                 }
             };
 
-
             try {
                 const resposta = await fetch('http://127.0.0.1:5000/gerar-documento', {
                     method: 'POST',
@@ -112,34 +99,66 @@
                 const dadosRetorno = await resposta.json();
 
                 if (resposta.ok) {
-                    document.body.innerHTML = `<div class="btn-acoes">
-                        <button onClick="window.print()"> Salvar em PDF / Imprimir</button>
-                        <button class="btn-secundario" onclick="window.location.reload()"> Gerar novo documento</button>
+                    // 1. Abre a nova aba de forma limpa
+                    const novaAba = window.open('', '_blank');
+                    
+                    if (!novaAba) {
+                        alert("O Safari bloqueou a abertura da nova aba. Por favor, permita pop-ups para este site local.");
+                        return;
+                    }
+
+                    // 2. Define o título da nova aba
+                    novaAba.document.title = "Documento Gerado";
+
+                    // 3. Injeta a estrutura HTML e os estilos de forma segura (sem usar a tag script interna que quebrava tudo)
+                    novaAba.document.body.innerHTML = `
+                        <div class="btn-print-container">
+                            <button class="btn-print" id="btnImprimirJanela">Salvar em PDF / Imprimir</button>
                         </div>
                         <div class="documento-wrapper">
                             <div class="documento-texto">${dadosRetorno.documento}</div>
-                            </div>`;
-                    // código abaixo muda o fundo do navegador para destacar a folha branca       
-                    document.body.style.backgroundColor="#e5e7eb";
-                    document.body.style.alignItems = "flex-start";
+                        </div>
+                    `;
+
+                    // 4. Injeta os estilos dinamicamente para o Safari respeitar a folha A4
+                    const estilo = novaAba.document.createElement('style');
+                    estilo.textContent = `
+                        body { background-color: #e5e7eb; padding: 20px; margin: 0; font-family: sans-serif; }
+                        .btn-print-container { max-width: 800px; margin: 10px auto; text-align: right; }
+                        .btn-print { background-color: #4f46e5; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; transition: background 0.2s; }
+                        .btn-print:hover { background-color: #4338ca; }
+                        .documento-wrapper { background-color: #ffffff; padding: 50px 60px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); width: 100%; max-width: 800px; margin: 20px auto; min-height: 297mm; box-sizing: border-box; }
+                        .documento-texto { font-family: "Times New Roman", Times, serif; font-size: 18px; line-height: 1.6; color: #000000; white-space: pre-wrap; text-align: justify; }
+                        @media print {
+                            body { background-color: white; padding: 0; }
+                            .btn-print-container { display: none !important; }
+                            .documento-wrapper { box-shadow: none; margin: 0; padding: 0; }
+                        }
+                    `;
+                    novaAba.document.head.appendChild(estilo);
+
+                    // Adiciona a ação do clique do botão de imprimir na nova página
+                    novaAba.document.getElementById('btnImprimirJanela').addEventListener('click', () => {
+                        novaAba.print();
+                    });
+
+                    // Abre a janela de impressão automaticamente
+                    setTimeout(() => {
+                        novaAba.print();
+                    }, 300);
                 }
                 else {
-                    divResultado.innerHTML = `<strong>Erro no servidor:</strong>${dadosRetorno.mensagem}`;
-                    divResultado.className = 'ERROR';
+                    divResultado.innerHTML = `<strong>Erro no servidor:</strong> ${dadosRetorno.mensagem}`;
+                    divResultado.className = 'erro';
+                    divResultado.classList.remove('hidden');
                 }
             }
             catch (erro) {
-                divResultado.innerHTML = `<strong>Erro no servidor:</strong>Não foi possível falar com o Back-end. O ser arquivo app.py está rodando no terminal?`;
-                divResultado.className = 'ERROR';
+                divResultado.innerHTML = `<strong>Erro no servidor:</strong> Não foi possível falar com o Back-end.`;
+                divResultado.className = 'erro';
+                divResultado.classList.remove('hidden');
             }
-
-
-
         });
-
-
-
-
     </script>
 </body>
 

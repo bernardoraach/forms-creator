@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Formulários</title>
+    <link rel="stylesheet" href="style.css">
+    <style></style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h2>Gerador de Documento</h2>
+
+        <form id="formGerador" onsubmit="event.preventDefault();">
+            <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" required placeholder="Ex: Michael Jackson">
+
+            </div>
+            <div class="form-group">
+                <label for="cpf">CPF</label>
+                <input type="text" id="cpf" required placeholder="Ex: 123.456.789-10">
+
+            </div>
+            <div class="form-group">
+                <label for="endereco">Endereço Residencial</label>
+                <input type="text" id="endereco" required placeholder="Ex: Rua, número...">
+
+            </div>
+            <div class="form-group">
+                <label for="filho">Nome do Filho</label>
+                <input type="text" id="filho" required placeholder="Deixe em branco se não tiver">
+
+            </div>
+            <div class="form-group">
+                <label for="renda">Renda Mensal R$</label>
+                <input type="text" id="renda" required placeholder="Ex: 3500">
+
+            </div>
+
+            <div class="form-group">
+                <label for="opcao_formulario">Tipo de Documento</label>
+                <select id="opcao_formulario" onchange="checkFormulario()">
+                    <option value="1">Declaracão de Responsáveis (Viagem)</option>
+                    <option value="2">Declaração de Residência</option>
+                    <option value="3">Declaracão de Renda</option>
+                    <option value="4">Declaração de Doador de Medula Óssea</option>
+                    <option value="livre">Criar Documento / Livre Personalizado</option>
+                </select>
+
+            </div>
+
+            <div class="form-group hidden" id="grupoTextoLivre">
+                <label for="texto_livre">O que deve constar no documento livre?</label>
+                <textarea id="texto_livre" rows="4"
+                    placeholder="Digite aqui os termos adicionais ou o escopo do seu documento personalizado..."></textarea>
+            </div>
+
+            <button type="button" id="btnEnviarForm">Gerar e Salvar Arquivo</button>
+
+        </form>
+
+        <div id="resultado" class="hidden"></div>
+
+    </div>
+
+    <script>
+        //Funcao para esconder o campo caso seja informado outro tipo de documento
+        function checkFormulario() {
+            const select = document.getElementById('opcao_formulario');
+            const grupoTextoLivre = document.getElementById('grupoTextoLivre');
+
+            if (select.value === 'livre') {
+                grupoTextoLivre.classList.remove('hidden');
+            } else {
+                grupoTextoLivre.classList.add('hidden');
+            }
+        };
+
+        //Conexão com envio do formulário e conecta com Back-end Flask
+        document.getElementById('formGerador').addEventListener('submit', async (e) => {
+            // e.preventDefault();
+
+            const divResultado = document.getElementById('resultado');
+            divResultado.className = 'hidden';
+
+            const dadosPayload = {
+                opcao_formulario: document.getElementById('opcao_formulario').value,
+                texto_livre: document.getElementById('texto_livre').value,
+                pessoa: {
+                    nome: document.getElementById('nome').value,
+                    cpf: document.getElementById('cpf').value,
+                    endereco: document.getElementById('endereco').value,
+                    filho: document.getElementById('filho').value,
+                    renda: document.getElementById('renda').value,
+                }
+            };
+
+
+            try {
+                const resposta = await fetch('http://127.0.0.1:5000/gerar-documento', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dadosPayload)
+                });
+
+                const dadosRetorno = await resposta.json();
+
+                if (resposta.ok) {
+                    document.getElementById('textoDoDocumentoGerado').innerText = dadosRetorno.documento;
+                    document.getElementById('areaFormulario').style.display = 'none';
+                    const areaDoc = document.getElementById('areaDocumento');
+                    areaDoc.classList.remove('hidden');
+
+
+                    // document.body.innerHTML = `
+                    // <div class="btn-acoes">
+                    //     <button onclick="window.print()"> Salvar em PDF / Imprimir</button>
+                    //     <button class="btn-secundario" onclick="window.location.reload()"> Gerar novo documento</button>
+                    //     </div>
+                    //     <div class="documento-wrapper">
+                    //         <div class="documento-texto">${dadosRetorno.documento}</div>
+                    //         </div>`;
+                    // código abaixo muda o fundo do navegador para destacar a folha branca       
+                    document.body.style.display = "block";
+                    document.body.style.backgroundColor = "#e5e7eb";
+                    // document.body.style.padding = "20px";
+                }
+                else {
+                    divResultado.innerHTML = `<strong>Erro no servidor:</strong>${dadosRetorno.mensagem}`;
+                    divResultado.className = 'ERROR';
+                }
+            }
+            catch (erro) {
+                divResultado.innerHTML = `<strong>Erro no servidor:</strong>Não foi possível falar com o Back-end. O ser arquivo app.py está rodando no terminal?`;
+                divResultado.className = 'ERROR';
+                divResultado.classList.remove('hidden');
+
+            }
+
+
+
+        });
+
+
+
+
+    </script>
+</body>
+
+</html>
