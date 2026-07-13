@@ -37,7 +37,7 @@
             <div class="form-group">
                 <label for="cidade">Cidade - Estado</label>
                 <input type="text" id="cidade" required placeholder="Ex: Curitiba - PR">
-            </div> 
+            </div>
 
             <div class="form-group">
                 <label for="opcao_formulario">Tipo de Documento</label>
@@ -77,8 +77,15 @@
             evento.preventDefault();
             evento.stopPropagation();
 
+            const btn = document.getElementById('btnEnviarForm')
             const divResultado = document.getElementById('resultado');
             divResultado.className = 'hidden';
+
+            // configura estado de carregamento
+            divResultado.className = 'hidden';
+            btn.disabled = true;
+            btn.innerText = "Processando...(Isso pode levar até 1 minuto)";
+            btn.style.backgroundColor = "#6b7280";
 
             const dadosPayload = {
                 opcao_formulario: document.getElementById('opcao_formulario').value,
@@ -116,7 +123,7 @@
 
                     const linkCSS = novaAba.document.createElement('link');
                     linkCSS.rel = 'stylesheet';
-                    linkCSS.href = 'style.css?v=7'; 
+                    linkCSS.href = 'style.css?v=7';
                     novaAba.document.head.appendChild(linkCSS);
 
                     novaAba.document.body.innerHTML = `
@@ -148,10 +155,20 @@
                 }
             }
             catch (erro) {
+                // exibe erro real no console para ajudar identificar a situação
+                console.error("Erro detalhado da requisição", erro);
                 divResultado.innerHTML = `<strong>Erro no servidor:</strong> Não foi possível falar com o Back-end.`;
                 divResultado.className = 'erro';
                 divResultado.classList.remove('hidden');
             }
+            finally {
+                // restaura botao ao estado original independente de sucesso ou falha
+                btn.disabled = false;
+                btn.innerText = "Gerar e Salvar arquivo";
+                btn.style.backgroundColor = "";
+
+            }
+
         });
     </script>
 </body>
