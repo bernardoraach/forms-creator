@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+# from flask_cors import CORS
 import os
 from datetime import datetime
 
-app = Flask(__name__)
-CORS(app)
+# app = Flask(__name__)
+# CORS(app)
+
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 def gerar_doc(dados, tipo): 
     """Função que centraliza a lógica e formata o documento como folha oficial"""
